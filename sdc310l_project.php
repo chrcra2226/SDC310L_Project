@@ -33,23 +33,72 @@
                 <!-- Center Column Content Section -->
                 <div class="col-sm-8">
                     <h2 class="text-center">This is the Home Shopping Page</h2>
-                    <!--Call and test database-->
+
+                    <!-- TABLE STRUCTURE -->
+                    <table class="table table-bordered table-striped text-center">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Price (USD)</th>
+                                <th>In Cart</th>
+                                <th>Quantity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                    <!--Call and display database-->
                     <?php require_once __DIR__ . "/mysqli_connect.php"; 
-                        $result = $dbcon->query("SELECT ProductId, ProductName, ProductDescription, ProductCost, InCart FROM products");
+                        $result = $dbcon->query("SELECT * FROM products");
                         if ($result->num_rows > 0) {
 
                             while ($row = $result->fetch_assoc()) {
                                 echo "<tr>";
-                                echo "<td><br>{$row['ProductId']} <br></td>";
-                                echo "<td>{$row['ProductName']} </td>";
-                                echo "<td>{$row['ProductDescription']} </td>";
-                                echo "<td>Price: USD {$row['ProductCost']} </td>";
-                                echo "<td>{$row['InCart']} </td>";
+                                echo "<td>{$row['ProductId']}</td>";
+                                echo "<td>{$row['ProductName']}</td>";
+                                echo "<td>{$row['ProductDescription']}</td>";
+                                echo "<td>{$row['ProductCost']}</td>";
+                                echo "<td>{$row['InCart']}</td>";
+                                echo "<td>
+                                        <form method='post' style='display:inline-block;'>
+                                            <input type='hidden' name='product_id' value='{$row['ProductId']}'>
+                                            <input type='number' name='quantity' min='0' value='{$row['Quantity']}' style='width:70px;'>
+                                    </td>
+                                    <td>
+                                            <button type='submit' name='add' class='btn btn-success btn-sm'>Add</button>
+                                            <button type='submit' name='update' class='btn btn-warning btn-sm'>Update</button>
+                                            <button type='submit' name='delete' class='btn btn-danger btn-sm'>Remove</button>
+                                        </form>
+                                    </td>";
                                 echo "</tr>";
                             }
 
                         } else {
-                            echo "Error";
+                            echo "<tr><td colspan='7'>No Products Found</td></tr>";
+                        }
+                    ?>
+                        </tbody>
+                    </table>
+                    <?php
+                        /* CREATE - Add product to cart */
+                        if (isset($_POST['add'])) {
+                            $id = $_POST['product_id'];
+                            $dbcon->query("UPDATE products SET InCart = 1 WHERE ProductId = $id");
+                        }
+
+                        /* UPDATE - Update product quantity */
+                        if (isset($_POST['update'])) {
+                            $id = $_POST['product_id'];
+                            $quantity = $_POST['quantity'];
+                            $dbcon->query("UPDATE products SET Quantity = $quantity WHERE ProductId = $id");
+                        }
+
+                        /* DELETE - Remove product from cart */
+                        if (isset($_POST['delete'])) {
+                            $id = $_POST['product_id'];
+                            $dbcon->query("UPDATE products SET InCart = 0 WHERE ProductId = $id");
                         }
                     ?>
                 </div>
